@@ -44,7 +44,7 @@ public class Snapshot {
 
     public void randomEdgeAdder(ArrayList<Edge> es){
         Random rand = new Random();
-        int num = rand.nextInt(this.n-1);
+        int num = rand.nextInt(es.size());
         for(int i=0; i<num; i++){
             int index = rand.nextInt(es.size());
             this.adjacent.get(es.get(index).getU()).add(es.get(index).getV());

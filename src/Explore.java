@@ -4,7 +4,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Explore {
-    public static ArrayList<Snapshot> grid = new ArrayList<Snapshot>();
+    public static ArrayList<Snapshot> grid = new ArrayList<>();
     public static ArrayList<Edge> staticEdges = new ArrayList<>();
     public static ArrayList<Agent> agents = new ArrayList<>();
 
@@ -13,26 +13,33 @@ public class Explore {
         int n = sc.nextInt();
         fillStaticEdges(n);
         createGrid(n);
-        for(int i=0; i<grid.size(); i++){
-            System.out.println(grid.get(i).time);
-        }
         //createAgents(n);
     }
 
     public static void createGrid(int n){
         int lifeTime = (int) Math.pow(n,2);
 
-        for(int i=1; i<lifeTime; i++){
+        for(int i=1; i<2; i++){
             Snapshot s = new Snapshot(n, i);
             Snapshot msTree = mst(n);
-            s.addMST(msTree.getAllEdges());
-            s.randomEdgeAdder(findRemainingEdges(msTree));
+            ArrayList<Edge> f = msTree.getAllEdges();
+            s.addMST(f);
+            for(int k=0; k<f.size(); k++){
+                System.out.println(f.get(k).getU() + " " + f.get(k).getV());
+            }
+            System.out.println(" - - - - - - - - - - - - ");
+            ArrayList<Edge> x = findRemainingEdges(msTree);
+            s.randomEdgeAdder(x);
+
+            for(int j=0; j< x.size(); j++){
+                System.out.println(x.get(j).getU() + " " + x.get(j).getV());
+            }
             grid.add(s);
         }
     }
 
     public static ArrayList<Edge> findRemainingEdges(Snapshot snapshot){
-        ArrayList<Edge> arr = new ArrayList<>(staticEdges);
+        ArrayList<Edge> arr = copyArray(staticEdges);
         ArrayList<Edge> snapshotEdges = snapshot.getAllEdges();
         for(int i=0; i<snapshotEdges.size(); i++){
             for(int j=0; j<arr.size(); j++){
@@ -49,7 +56,7 @@ public class Explore {
 
     public static void fillStaticEdges(int n){
         for(int i=0; i<n-1; i++){
-            if(i%2 == 1){
+            if(i%2 == 0){
                 Edge e = new Edge(i, i+1);
                 staticEdges.add(e);
             }
@@ -85,5 +92,13 @@ public class Explore {
             }
         }
         return msTree;
+    }
+
+    public static ArrayList<Edge> copyArray(ArrayList<Edge> e){
+        ArrayList<Edge> newArray = new ArrayList<>();
+        for(int i=0; i<e.size(); i++){
+            newArray.add(e.get(i));
+        }
+        return newArray;
     }
 }
