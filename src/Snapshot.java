@@ -52,4 +52,16 @@ public class Snapshot {
             es.remove(index);
         }
     }
+
+    public boolean containEdge(int u, int v){
+        ArrayList<Edge> allEdges = this.getAllEdges();
+        int res = 0;
+        for(int i=0; i<allEdges.size(); i++){
+            if((allEdges.get(i).getU() == u && allEdges.get(i).getV() == v)
+                    || (allEdges.get(i).getU() == v && allEdges.get(i).getV() == u)){
+                res++;
+            }
+        }
+        return (res==0) ? false:true;
+    }
 }

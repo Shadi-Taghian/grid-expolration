@@ -11,6 +11,7 @@ public class Explore {
     public static ArrayList<Snapshot> grid = new ArrayList<>();
     public static ArrayList<Edge> staticEdges = new ArrayList<>();
     public static ArrayList<Agent> agents = new ArrayList<>();
+    public static ArrayList<Agent> usedAgents = new ArrayList<>();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -18,7 +19,12 @@ public class Explore {
         fillStaticEdges(n);
         createGrid(n);
         gridWriter();
-        //createAgents(n);
+        createAgents(n);
+        ArrayList<Integer> times = new ArrayList<>();
+        for(int i=0; i<grid.size(); i++){
+            times.add(i);
+        }
+        explore(0,n-1,times);
     }
 
     public static void createGrid(int n){
@@ -69,6 +75,55 @@ public class Explore {
         for(int i=0; i<count; i++){
             Agent a = new Agent();
             agents.add(a);
+        }
+    }
+
+    public static void explore(int start, int end, ArrayList<Integer> times){
+        if(start+2 == end-1){
+            System.out.println("exploration finished!");
+        }
+        else {
+
+            Agent al1 = agents.get(0);
+            usedAgents.add(al1);
+            agents.remove(0);
+            Agent al2 = agents.get(0);
+            usedAgents.add(al2);
+            agents.remove(0);
+            Agent ar1 = agents.get(0);
+            usedAgents.add(ar1);
+            agents.remove(0);
+            Agent ar2 = agents.get(0);
+            usedAgents.add(ar2);
+            agents.remove(0);
+            al1.setInitialNode(start);
+            al2.setInitialNode(start + 1);
+            ar1.setInitialNode(end - 1);
+            ar2.setInitialNode(end);
+            boolean left, right;
+            ArrayList<Integer> badTimes = new ArrayList<>();
+
+            for (int i = 0; i < times.size(); i++) {
+                left = false;
+                right = false;
+                Snapshot currentGrid = grid.get(times.get(i));
+                if (currentGrid.containEdge(al1.getCurrentNode(), al1.getCurrentNode() + 2)
+                        && currentGrid.containEdge(al2.getCurrentNode(), al2.getCurrentNode() + 2)) {
+                    al1.setCurrentNode(al1.getCurrentNode() + 2);
+                    al2.setCurrentNode(al2.getCurrentNode() + 2);
+                    left = true;
+                }
+                if (currentGrid.containEdge(ar1.getCurrentNode(), ar1.getCurrentNode() - 2)
+                        && currentGrid.containEdge(ar2.getCurrentNode(), ar2.getCurrentNode() - 2)) {
+                    ar1.setCurrentNode(ar1.getCurrentNode() - 2);
+                    ar2.setCurrentNode(ar2.getCurrentNode() - 2);
+                    right = true;
+                }
+                if (!right && !left) {
+                    badTimes.add(times.get(i));
+                }
+            }
+            explore(al1.getCurrentNode(), ar2.getCurrentNode(), badTimes);
         }
     }
 
