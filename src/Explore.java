@@ -1,3 +1,7 @@
+import java.awt.desktop.SystemEventListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -13,27 +17,19 @@ public class Explore {
         int n = sc.nextInt();
         fillStaticEdges(n);
         createGrid(n);
+        gridWriter();
         //createAgents(n);
     }
 
     public static void createGrid(int n){
         int lifeTime = (int) Math.pow(n,2);
 
-        for(int i=1; i<2; i++){
+        for(int i=1; i<lifeTime; i++){
             Snapshot s = new Snapshot(n, i);
             Snapshot msTree = mst(n);
             ArrayList<Edge> f = msTree.getAllEdges();
             s.addMST(f);
-            for(int k=0; k<f.size(); k++){
-                System.out.println(f.get(k).getU() + " " + f.get(k).getV());
-            }
-            System.out.println(" - - - - - - - - - - - - ");
-            ArrayList<Edge> x = findRemainingEdges(msTree);
-            s.randomEdgeAdder(x);
-
-            for(int j=0; j< x.size(); j++){
-                System.out.println(x.get(j).getU() + " " + x.get(j).getV());
-            }
+            s.randomEdgeAdder(findRemainingEdges(s));
             grid.add(s);
         }
     }
@@ -100,5 +96,30 @@ public class Explore {
             newArray.add(e.get(i));
         }
         return newArray;
+    }
+
+    public static void gridWriter(){
+        try {
+            File myObj = new File("temporal-grid.txt");
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+            FileWriter myWriter = new FileWriter("temporal-grid.txt");
+            for(int i=0; i<grid.size(); i++){
+                myWriter.write("snapshot " + i + "\n");
+                for(int j=0; j<grid.get(i).getAllEdges().size(); j++){
+                    myWriter.write("u: " + grid.get(i).getAllEdges().get(j).getU() +
+                            ", v: " + grid.get(i).getAllEdges().get(j).getV());
+                    myWriter.write("\n");
+                }
+                myWriter.write("................................." + "\n");
+            }
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 }

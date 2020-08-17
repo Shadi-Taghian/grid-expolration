@@ -37,7 +37,6 @@ public class DisjointSet {
     }
 
     public boolean check(int x, int y){
-        System.out.println(x + " " + y);
         return this.findAncestor(x) == this.findAncestor(y);
     }
 
