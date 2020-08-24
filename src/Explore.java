@@ -13,6 +13,18 @@ public class Explore {
     public static ArrayList<Agent> agents = new ArrayList<>();
     public static ArrayList<Agent> usedAgents = new ArrayList<>();
 
+
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
+
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int n = sc.nextInt();
@@ -20,6 +32,7 @@ public class Explore {
         createGrid(n);
         gridWriter();
         createAgents(n);
+
         ArrayList<Integer> times = new ArrayList<>();
         for(int i=0; i<grid.size(); i++){
             times.add(i);
@@ -30,7 +43,7 @@ public class Explore {
     public static void createGrid(int n){
         int lifeTime = (int) Math.pow(n,2);
 
-        for(int i=1; i<lifeTime; i++){
+        for(int i=0; i<lifeTime; i++){
             Snapshot s = new Snapshot(n, i);
             Snapshot msTree = mst(n);
             ArrayList<Edge> f = msTree.getAllEdges();
@@ -71,7 +84,7 @@ public class Explore {
 
 
     public static void createAgents(int n){
-        int count = (int) Math.log(n) * 4;
+        int count = (int) Math.log(n) * 8;
         for(int i=0; i<count; i++){
             Agent a = new Agent();
             agents.add(a);
@@ -79,11 +92,11 @@ public class Explore {
     }
 
     public static void explore(int start, int end, ArrayList<Integer> times){
-        if(start+2 == end-1){
+        System.out.println(ANSI_PURPLE+"------- <<Exploration begins>> -------"+ANSI_RESET);
+        if(start+2 >= end-1){
             System.out.println("exploration finished!");
         }
         else {
-
             Agent al1 = agents.get(0);
             usedAgents.add(al1);
             agents.remove(0);
@@ -100,30 +113,52 @@ public class Explore {
             al2.setInitialNode(start + 1);
             ar1.setInitialNode(end - 1);
             ar2.setInitialNode(end);
+            al1.setCurrentNode(start);
+            al2.setCurrentNode(start + 1);
+            ar1.setCurrentNode(end - 1);
+            ar2.setCurrentNode(end);
             boolean left, right;
+            int count =0;
             ArrayList<Integer> badTimes = new ArrayList<>();
 
             for (int i = 0; i < times.size(); i++) {
                 left = false;
                 right = false;
                 Snapshot currentGrid = grid.get(times.get(i));
-                if (currentGrid.containEdge(al1.getCurrentNode(), al1.getCurrentNode() + 2)
-                        && currentGrid.containEdge(al2.getCurrentNode(), al2.getCurrentNode() + 2)) {
-                    al1.setCurrentNode(al1.getCurrentNode() + 2);
-                    al2.setCurrentNode(al2.getCurrentNode() + 2);
-                    left = true;
+                if(al1.getCurrentNode()+2 >= ar1.getCurrentNode()){
+                    System.out.println("exploration finished");
+                    break;
                 }
-                if (currentGrid.containEdge(ar1.getCurrentNode(), ar1.getCurrentNode() - 2)
-                        && currentGrid.containEdge(ar2.getCurrentNode(), ar2.getCurrentNode() - 2)) {
-                    ar1.setCurrentNode(ar1.getCurrentNode() - 2);
-                    ar2.setCurrentNode(ar2.getCurrentNode() - 2);
-                    right = true;
-                }
-                if (!right && !left) {
-                    badTimes.add(times.get(i));
+                else {
+                    if (count > ((end - start) / 2)) {
+                        explore(al1.getCurrentNode(), ar2.getCurrentNode(), badTimes);
+                        break;
+                    } else {
+                        if (currentGrid.containEdge(al1.getCurrentNode(), al1.getCurrentNode() + 2)
+                                && currentGrid.containEdge(al2.getCurrentNode(), al2.getCurrentNode() + 2)) {
+                            al1.setCurrentNode(al1.getCurrentNode() + 2);
+                            al2.setCurrentNode(al2.getCurrentNode() + 2);
+                            System.out.println(currentGrid.time);
+                            System.out.println("Left agents moved");
+                            left = true;
+                        }
+                        if (currentGrid.containEdge(ar1.getCurrentNode(), ar1.getCurrentNode() - 2)
+                                && currentGrid.containEdge(ar2.getCurrentNode(), ar2.getCurrentNode() - 2)) {
+                            ar1.setCurrentNode(ar1.getCurrentNode() - 2);
+                            ar2.setCurrentNode(ar2.getCurrentNode() - 2);
+                            System.out.println(currentGrid.time);
+                            System.out.println("Right agents moved");
+                            right = true;
+                        }
+                        if (!right && !left) {
+                            badTimes.add(times.get(i));
+                            count++;
+                        } else {
+                            count = 0;
+                        }
+                    }
                 }
             }
-            explore(al1.getCurrentNode(), ar2.getCurrentNode(), badTimes);
         }
     }
 
